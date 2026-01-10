@@ -1,0 +1,14 @@
+name = "vcp-ingest-worker"
+main = "src/worker.js"
+compatibility_date = "2024-01-01"
+
+# Production secrets (provided after NDA execution)
+# Set via: wrangler secret put <SECRET_NAME>
+#
+# INGEST_TOKEN   - Sidecar authentication token
+# VCP_LOGGING_URL - ████████████████████████████████
+# VCP_API_KEY    - ████████████████████████████████
+
+[[routes]]
+pattern = "████████████████████/ingest/*"
+zone_name = "████████████"
