@@ -2,7 +2,7 @@
 >
 > - This is first-party proof-of-concept code by VeritasChain Co., Ltd., which operates the VeritasChain Standards Organization (VSO). It targets VCP v1.1 (Silver tier). VCP v1.1 has no tagged release and is superseded by VCP v1.2 (Released, tag `v1.2.0`).
 > - Conformance to any VCP tier, or to VAP, has not been independently established. There are zero external implementations of VAP or any of its profiles, including VCP.
-> - Not certified. VSO does not issue certificates. The certification scheme requires a Conformity Assessment Body (CAB) independent of the scheme owner; the only registered CAB, VeritasChain Co., Ltd., is not independent (VAP v1.2 ERRATA E-2026-10-21).
+> - Not certified. VSO does not issue certifications itself. The certification scheme requires a Conformity Assessment Body (CAB) independent of the scheme owner; the only registered CAB, VeritasChain Co., Ltd., is not independent (VAP v1.2 ERRATA E-2026-10-21).
 > - Known limitations: external anchoring is not implemented. The sidecar only computes a Merkle root (`get_merkle_root()`); submission to a TSA or blockchain is left as a comment, and the worker does no anchoring. The Merkle construction hashes concatenated hex strings with plain SHA-256 and duplicates the last node at odd levels; it is not RFC 6962 (no `0x00`/`0x01` domain separation). Events carry no signatures. The demo `event_id` values do not match the UUID format (the fourth group has five hex digits).
 > - Whether an NDA-gated "production" service exists is not shown by anything in this repository. Mentions of production endpoints and credentials below describe an access model, not a verified deployment.
 
