@@ -473,7 +473,7 @@ def run_demo():
     tampered_valid = verify_chain(tampered_events)
     
     if not tampered_valid:
-        print("  ✓ TAMPER DETECTED! Manipulation attempt blocked.")
+        print("  ✓ Tampering detected (verification failed).")
     
     # Export events
     print()

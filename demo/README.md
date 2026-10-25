@@ -48,7 +48,7 @@ That's it! The demo will:
   [1] ORD  Hash: FAIL  Chain: OK  ✗
   [2] EXE  Hash: OK  Chain: FAIL  ✗
   Result: ✗ CHAIN INTEGRITY FAILED
-  ✓ TAMPER DETECTED! Manipulation attempt blocked.
+  ✓ Tampering detected (verification failed).
 ```
 
 ## Files
@@ -90,7 +90,7 @@ Event 0 (SIG)          Event 1 (ORD)          Event 2 (EXE)
                                               └─────────────┘
 ```
 
-Each event's hash becomes the `prev_hash` of the next event, creating an unbreakable chain.
+Each event's hash becomes the `prev_hash` of the next event, creating a tamper-evident chain.
 
 ### Why Tamper Detection Works
 
@@ -132,6 +132,8 @@ Authorization: Bearer vcp-demo-token-2026
 | Token | `vcp-demo-token-2026` | Provided after NDA |
 | Storage | In-memory | Distributed ledger |
 | Anchoring | None | External timestamp |
+
+The Production column describes an intended access model; nothing in this repository shows that such a service exists (see the status correction in [../README.md](../README.md)).
 
 **Ready for production?** Contact enterprise@veritaschain.org
 

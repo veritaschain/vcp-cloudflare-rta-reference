@@ -1,6 +1,6 @@
 /**
  * VCP Ingest Worker v1.0
- * Production implementation for VCP event ingestion.
+ * Reference PoC for VCP event ingestion (non-certified).
  * 
  * Deployment: Cloudflare Workers
  * Endpoint: ████████████████████████████████ (provided after NDA)

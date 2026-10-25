@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Corrected (2026-10-25)
+
+- The "VCP v1.1 Full Compliance" (1.1.0) and "VCP v1.0 Silver Tier compliance" (1.0.0) entries below were not established. Conformance to any VCP tier has not been independently assessed, external anchoring is not implemented, and the Merkle construction is not RFC 6962. The historical entries are left as written.
+- The "VC-Certified status" wording below is superseded. VSO does not issue certificates. The certification scheme requires a Conformity Assessment Body (CAB) independent of the scheme owner; the only registered CAB, VeritasChain Co., Ltd., is not independent (VAP v1.2 ERRATA E-2026-10-21).
+- VCP v1.1 is superseded by VCP v1.2 (Released, tag `v1.2.0`).
+
 ## [1.1.0] - 2026-01-09
 
 ### Added
