@@ -501,7 +501,7 @@ def run_demo():
     print("  │ 2. Cryptographic hash chain (OPTIONAL in v1.1)     │")
     print("  │ 3. Merkle Root for External Anchoring (REQUIRED)   │")
     print("  │ 4. Tamper detection via hash verification          │")
-    print("  │ 5. Third-party verifiable without trust            │")
+    print("  │ 5. Local hash and chain checks (limited scope)     │")
     print("  └─────────────────────────────────────────────────────┘")
     print()
     print("  VCP v1.1 Key Changes:")
