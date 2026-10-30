@@ -184,6 +184,8 @@ After NDA execution, you will receive:
 
 ## Security
 
+The key provisioning, rotation, and transport requirements below are design targets; their operation is not demonstrated by this repository.
+
 - All credentials are provided via secure channel after NDA
 - API keys are rotated every 90 days
 - TLS 1.3 required for all connections
