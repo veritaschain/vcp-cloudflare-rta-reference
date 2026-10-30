@@ -46,7 +46,7 @@ That's it! The demo will:
   → Tampered quantity: 999999
   [0] SIG  Hash: OK  Chain: OK  ✓
   [1] ORD  Hash: FAIL  Chain: OK  ✗
-  [2] EXE  Hash: OK  Chain: FAIL  ✗
+  [2] EXE  Hash: OK  Chain: OK  ✓
   Result: ✗ CHAIN INTEGRITY FAILED
   ✓ Tampering detected (verification failed).
 ```
@@ -94,10 +94,11 @@ Each event's hash becomes the `prev_hash` of the next event, creating a tamper-e
 
 ### Why Tamper Detection Works
 
-When Event 1's data is modified:
-- Its computed hash no longer matches the stored `event_hash`
-- Event 2's `prev_hash` no longer matches Event 1's actual hash
-- **Both failures are detected, pinpointing the tampered event**
+When Event 1's payload is modified without updating its stored hash:
+
+- Its recomputed hash no longer matches the stored `event_hash`.
+- The unchanged stored-hash links can still pass their chain checks.
+- The overall verification fails because Event 1's hash check fails.
 
 ## Mock Server API
 
