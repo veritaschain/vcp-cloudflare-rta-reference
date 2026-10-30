@@ -1,31 +1,39 @@
-# VCP-Cloudflare Production Implementation
+> **Status correction — 25 October 2026**
+>
+> - This is first-party proof-of-concept code by VeritasChain Co., Ltd., which operates the VeritasChain Standards Organization (VSO). It targets VCP v1.1 (Silver tier). VCP v1.1 has no tagged release and is superseded by VCP v1.2 (Released, tag `v1.2.0`).
+> - Conformance to any VCP tier, or to VAP, has not been independently established. There are zero external implementations of VAP or any of its profiles, including VCP.
+> - Not certified. VSO does not issue certifications itself. The certification scheme requires a Conformity Assessment Body (CAB) independent of the scheme owner; the only registered CAB, VeritasChain Co., Ltd., is not independent (VAP v1.2 ERRATA E-2026-10-21).
+> - Known limitations: external anchoring is not implemented. The sidecar only computes a Merkle root (`get_merkle_root()`); submission to a TSA or blockchain is left as a comment, and the worker does no anchoring. The Merkle construction hashes concatenated hex strings with plain SHA-256 and duplicates the last node at odd levels; it is not RFC 6962 (no `0x00`/`0x01` domain separation). Events carry no signatures. The demo `event_id` values do not match the UUID format (the fourth group has five hex digits).
+> - Whether an NDA-gated "production" service exists is not shown by anything in this repository. Mentions of production endpoints and credentials below describe an access model, not a verified deployment.
+
+# VCP-Cloudflare Reference PoC
 
 **Cloudflare Workers x VCP v1.1 Sidecar Integration**
 
 [![VCP Version](https://img.shields.io/badge/VCP-v1.1-blue)](https://veritaschain.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
-[![Conformance](https://img.shields.io/badge/Tier-Silver-silver)](https://veritaschain.org/tiers)
+[![Status](https://img.shields.io/badge/Status-Non--certified_PoC-orange)](#)
 
 > "Verify, Don't Trust" - Third-party verifiable audit trails for algorithmic trading systems.
 
 ## Overview
 
-Production implementation of the **VeritasChain Protocol (VCP) v1.1** using Cloudflare Workers as an edge gateway. This implementation achieves **VCP v1.1 Silver Tier compliance** with full support for:
+Proof-of-concept implementation of the **VeritasChain Protocol (VCP) v1.1** using Cloudflare Workers as an edge gateway. It targets **VCP v1.1 Silver Tier**; conformance has not been established. It includes:
 
 - **Policy Identification** (REQUIRED in v1.1)
 - **External Anchor preparation** (REQUIRED for all tiers)
 - **Hash chain linking** (OPTIONAL, enabled by default)
 - **Merkle tree construction** for batch anchoring
 
-## VCP v1.1 Compliance
+## VCP v1.1 Design Targets (not conformance results)
 
 | v1.1 Requirement | Status | Notes |
 |------------------|--------|-------|
-| Policy Identification | ✅ COMPLIANT | Section 5.5 |
-| External Anchor | ✅ COMPLIANT | 24h for Silver tier |
-| Merkle Tree | ✅ COMPLIANT | RFC 6962 |
-| Hash Chain | ✅ OPTIONAL | Enabled by default |
-| Three-Layer Architecture | ✅ COMPLIANT | Section 6 |
+| Policy Identification | Implemented (not assessed) | Section 5.5 |
+| External Anchor | NOT IMPLEMENTED (Merkle root only) | 24h for Silver tier |
+| Merkle Tree | Implemented, not RFC 6962 | No domain separation; odd-node duplication |
+| Hash Chain | OPTIONAL | Enabled by default |
+| Three-Layer Architecture | Partial (no external anchor) | Section 6 |
 
 ## Quick Start (Demo)
 
@@ -165,26 +173,28 @@ After NDA execution, you will receive:
 | Worker domain | Your dedicated ingest endpoint |
 | Policy ID | Your registered policy identifier |
 
-## Compliance
+## Conformance Status
 
 | Requirement | Status |
 |-------------|--------|
-| VCP v1.1 Schema | ✅ COMPLIANT |
-| Policy Identification | ✅ COMPLIANT |
-| External Anchoring | ✅ COMPLIANT |
-| Silver Tier | ✅ COMPLIANT |
+| VCP v1.1 Schema | Not assessed |
+| Policy Identification | Implemented (not assessed) |
+| External Anchoring | Not implemented |
+| Silver Tier | Not established |
 
 ## Security
+
+The key provisioning, rotation, and transport requirements below are design targets; their operation is not demonstrated by this repository.
 
 - All credentials are provided via secure channel after NDA
 - API keys are rotated every 90 days
 - TLS 1.3 required for all connections
 - No credentials are stored in this repository
-- Crypto-agility: Ed25519 default, PQC-ready
+- Event signatures are not implemented in this PoC (Ed25519 is the VCP default algorithm)
 
-## Standards Compliance
+## Standards Referenced
 
-This implementation conforms to:
+This implementation refers to the following. Conformance has not been assessed; the Merkle construction does not follow RFC 6962, and canonicalization uses Python `json.dumps(sort_keys=True)` rather than a full RFC 8785 implementation:
 
 - **VCP v1.1 Specification** (2025-12-30)
 - **RFC 9562**: UUID v7
