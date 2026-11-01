@@ -1,0 +1,11 @@
+{
+  "name": "vcp-ingest-worker-poc",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-isolation=none test/*.test.js"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

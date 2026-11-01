@@ -14,6 +14,36 @@ const VALID_EVENT_TYPES = {
   'EXE': 5, 'CXL': 6, 'MOD': 7,
 };
 
+function hasHeaderSecret(value) {
+  // Reject absent/non-string values before interpolation into an HTTP header.
+  // Visible ASCII also excludes empty, whitespace-only and CR/LF values.
+  return typeof value === 'string' && /^[\x21-\x7e]+$/.test(value);
+}
+
+function hasRequiredConfiguration(env) {
+  if (!hasHeaderSecret(env?.INGEST_TOKEN) || !hasHeaderSecret(env?.VCP_API_KEY)) {
+    return false;
+  }
+  const target = env?.VCP_LOGGING_URL;
+  if (typeof target !== 'string' || !target || target !== target.trim()
+      || /[\x00-\x20\x7f]/.test(target)) {
+    return false;
+  }
+  try {
+    const url = new URL(target);
+    return url.protocol === 'https:' && !url.username && !url.password && !url.hash;
+  } catch {
+    return false;
+  }
+}
+
+function errorResponse(error, status) {
+  return new Response(JSON.stringify({ error }), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
 function generateEdgeMetadata(request) {
   return {
     cf_ray: request.headers.get('cf-ray') || null,
@@ -37,23 +67,30 @@ export default {
     }
 
     if (request.method !== 'POST') {
-      return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+      return errorResponse('Method not allowed', 405);
+    }
+
+    // A missing binding must never turn the literal "undefined" or "null"
+    // into a usable bearer credential. Do not parse or forward until configured.
+    if (!hasRequiredConfiguration(env)) {
+      return errorResponse('Ingest service is not configured', 503);
     }
 
     const authHeader = request.headers.get('authorization');
     if (authHeader !== `Bearer ${env.INGEST_TOKEN}`) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+      return errorResponse('Unauthorized', 401);
     }
 
     let event;
     try {
       event = await request.json();
     } catch (e) {
-      return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400 });
+      return errorResponse('Invalid JSON', 400);
     }
 
-    if (!event.header?.event_id || !event.header?.event_type_code) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
+    if (!event || typeof event !== 'object' || Array.isArray(event)
+        || !event.header?.event_id || !event.header?.event_type_code) {
+      return errorResponse('Missing required fields', 400);
     }
 
     event.edge_observation = generateEdgeMetadata(request);
@@ -61,6 +98,8 @@ export default {
     try {
       const vcpResponse = await fetch(env.VCP_LOGGING_URL, {
         method: 'POST',
+        // Do not forward the configured API key through an upstream redirect.
+        redirect: 'error',
         headers: {
           'Content-Type': 'application/json',
           'X-API-Key': env.VCP_API_KEY,

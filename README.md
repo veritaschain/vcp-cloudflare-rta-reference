@@ -184,6 +184,44 @@ After NDA execution, you will receive:
 
 ## Security
 
+### Worker authentication correction — 1 November 2026
+
+The Worker previously interpolated `INGEST_TOKEN` before checking whether the
+binding existed. With no configured token, the literal request header
+`Authorization: Bearer undefined` could pass that check and reach the upstream
+request. A `null` or numeric binding had the same coercion problem. The public
+handler was reproduced locally with synthetic requests and a stub upstream;
+this does not establish that any deployed service used the faulty configuration.
+
+The current handler requires all three configuration bindings before reading an
+event or forwarding it:
+
+- `INGEST_TOKEN` and `VCP_API_KEY` must be nonempty strings of visible ASCII
+  without whitespace. Operators still need to provision unpredictable secrets;
+  the format check does not measure their entropy or implement rotation.
+- `VCP_LOGGING_URL` must be an HTTPS URL without embedded credentials or a
+  fragment. Redirects are rejected so that the upstream API key is not forwarded
+  to a different redirect target.
+- Invalid configuration returns `503`; an incorrect or missing bearer header
+  with valid configuration returns `401`. Both paths make zero upstream calls.
+- `OPTIONS` remains a non-mutating preflight and does not authorize ingestion.
+  Authenticated malformed JSON, null/array input or missing required fields
+  returns `400` without an upstream call.
+
+Run the dependency-free Worker regressions with Node.js 24:
+
+```bash
+node --test --test-isolation=none worker/test/*.test.js
+```
+
+The tests execute the actual Worker `fetch` handler with synthetic `Request`
+objects and replace only the upstream `fetch`. They do not deploy a Worker,
+contact a live endpoint, prove Cloudflare runtime compatibility, or establish
+event authenticity. Bearer-token possession is still the authorization model;
+there is no event signature verification, replay prevention, full VCP schema
+validation or externally verified anchoring in this gateway. Existing sidecar
+hashing and event formats are unchanged.
+
 The key provisioning, rotation, and transport requirements below are design targets; their operation is not demonstrated by this repository.
 
 - All credentials are provided via secure channel after NDA
