@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security correction (2026-11-02)
+
+- Validate Worker configuration before request parsing or upstream forwarding.
+- Compare bearer credentials through Web Crypto HMAC verification instead of JavaScript string equality; a cryptographic failure denies ingestion. This does not claim constant-time behavior for the complete HTTP request.
+- Keep malformed requests and untrusted upstream redirects from forwarding credentials. Synthetic handler regressions cover configuration, authorization, comparison failures, and no-forward behavior.
+
 ### Corrected (2026-10-25)
 
 - The "VCP v1.1 Full Compliance" (1.1.0) and "VCP v1.0 Silver Tier compliance" (1.0.0) entries below were not established. Conformance to any VCP tier has not been independently assessed, external anchoring is not implemented, and the Merkle construction is not RFC 6962. The historical entries are left as written.

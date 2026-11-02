@@ -8,6 +8,9 @@ compatibility_date = "2024-01-01"
 # INGEST_TOKEN   - Sidecar authentication token
 # VCP_LOGGING_URL - ████████████████████████████████
 # VCP_API_KEY    - ████████████████████████████████
+# All three bindings are required for POST ingestion. Tokens must be nonempty
+# visible ASCII without whitespace; VCP_LOGGING_URL must be HTTPS without URL
+# credentials or a fragment. Missing/invalid configuration returns 503.
 
 [[routes]]
 pattern = "████████████████████/ingest/*"
