@@ -74,7 +74,8 @@ test('missing environment fails before parsing JSON or forwarding', async (t) =>
 });
 
 for (const header of [null, 'Bearer incorrect', 'Bearer undefined', 'Basic synthetic-ingest-token',
-  'Bearer synthetic-ingest-token-more', 'Bearer synthetic-ingest-token, Bearer incorrect']) {
+  'Bearer synthetic-ingest-token-more', 'Bearer synthetic-ingest-token, Bearer incorrect',
+  'Bearer xynthetic-ingest-token', 'Bearer synthetic-xngest-token', 'Bearer synthetic-ingest-tokex']) {
   test(`unauthorized request is not forwarded: ${JSON.stringify(header)}`, async (t) => {
     const calls = upstream(t);
     // Malformed JSON must not override the authentication failure.
@@ -84,6 +85,17 @@ for (const header of [null, 'Bearer incorrect', 'Bearer undefined', 'Basic synth
     assert.equal(calls.length, 0);
   });
 }
+
+test('cryptographic comparison failure does not parse or forward a request', async (t) => {
+  const calls = upstream(t);
+  t.mock.method(crypto.subtle, 'verify', async () => {
+    throw new Error(`not public: ${CONFIG.INGEST_TOKEN}`);
+  });
+  const response = await worker.fetch(request(undefined, '{invalid'), CONFIG, {});
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), { error: 'Authentication service unavailable' });
+  assert.equal(calls.length, 0);
+});
 
 test('valid token forwards only the configured upstream credential and preserves the event', async (t) => {
   const calls = upstream(t);

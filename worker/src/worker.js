@@ -44,6 +44,19 @@ function errorResponse(error, status) {
   });
 }
 
+async function matchesAuthorization(header, token) {
+  if (typeof header !== 'string') return false;
+  const encode = (value) => new TextEncoder().encode(value);
+  // Delegate the comparison to Web Crypto's HMAC verifier. Do not compare
+  // secret-bearing strings or MAC bytes with JavaScript equality operators.
+  // This preserves the existing exact Bearer header contract.
+  const key = await crypto.subtle.importKey(
+    'raw', encode(token), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify'],
+  );
+  const expected = await crypto.subtle.sign('HMAC', key, encode(`Bearer ${token}`));
+  return crypto.subtle.verify('HMAC', key, expected, encode(header));
+}
+
 function generateEdgeMetadata(request) {
   return {
     cf_ray: request.headers.get('cf-ray') || null,
@@ -77,7 +90,14 @@ export default {
     }
 
     const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${env.INGEST_TOKEN}`) {
+    let authorized;
+    try {
+      authorized = await matchesAuthorization(authHeader, env.INGEST_TOKEN);
+    } catch {
+      // A cryptographic runtime failure is never an authorization fallback.
+      return errorResponse('Authentication service unavailable', 503);
+    }
+    if (!authorized) {
       return errorResponse('Unauthorized', 401);
     }
 

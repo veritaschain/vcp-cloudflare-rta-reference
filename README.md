@@ -204,6 +204,11 @@ event or forwarding it:
   to a different redirect target.
 - Invalid configuration returns `503`; an incorrect or missing bearer header
   with valid configuration returns `401`. Both paths make zero upstream calls.
+- Bearer credentials are compared through Web Crypto HMAC verification, without
+  a JavaScript equality comparison of secrets. Cryptographic runtime failures
+  return `503` and do not forward an event. This limits comparison timing leakage;
+  it does not claim constant-time behavior for the complete HTTP request. See
+  [Cloudflare's Web Crypto guidance](https://developers.cloudflare.com/workers/examples/signing-requests/).
 - `OPTIONS` remains a non-mutating preflight and does not authorize ingestion.
   Authenticated malformed JSON, null/array input or missing required fields
   returns `400` without an upstream call.
@@ -215,7 +220,8 @@ node --test --test-isolation=none worker/test/*.test.js
 ```
 
 The tests execute the actual Worker `fetch` handler with synthetic `Request`
-objects and replace only the upstream `fetch`. They do not deploy a Worker,
+objects and a stub upstream `fetch`; the failure-control case also injects a
+Web Crypto exception. They do not deploy a Worker,
 contact a live endpoint, prove Cloudflare runtime compatibility, or establish
 event authenticity. Bearer-token possession is still the authorization model;
 there is no event signature verification, replay prevention, full VCP schema
