@@ -6,6 +6,13 @@
 > - Known limitations: external anchoring is not implemented. The sidecar only computes a Merkle root (`get_merkle_root()`); submission to a TSA or blockchain is left as a comment, and the worker does no anchoring. The Merkle construction hashes concatenated hex strings with plain SHA-256 and duplicates the last node at odd levels; it is not RFC 6962 (no `0x00`/`0x01` domain separation). Events carry no signatures. The demo `event_id` values do not match the UUID format (the fourth group has five hex digits).
 > - Whether an NDA-gated "production" service exists is not shown by anything in this repository. Mentions of production endpoints and credentials below describe an access model, not a verified deployment.
 
+> **Historical assessment document — 10 November 2026**
+>
+> [VCP_WorldFirst_Evidence_Report_v5_Final.pdf](VCP_WorldFirst_Evidence_Report_v5_Final.pdf)
+> is retained as a historical document. Its filename and presence do not establish
+> "world's first" status, independent review, conformance or production readiness.
+> The current implementation limits are stated above; the original PDF bytes are unchanged.
+
 # VCP-Cloudflare Reference PoC
 
 **Cloudflare Workers x VCP v1.1 Sidecar Integration**
