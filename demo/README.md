@@ -39,7 +39,7 @@ That's it! The demo will:
   [0] SIG  Hash: OK  Chain: OK  ✓
   [1] ORD  Hash: OK  Chain: OK  ✓
   [2] EXE  Hash: OK  Chain: OK  ✓
-  Result: ✓ CHAIN INTEGRITY VERIFIED
+  Result: ✓ LOCAL HASH CHAIN MATCH
 
 [4/5] Demonstrating tamper detection...
   → Original quantity: 100000
@@ -66,6 +66,17 @@ After running the demo, verify the exported events:
 ```bash
 python ../tools/vcp_verifier.py sample_events.jsonl
 ```
+
+This is a local header/payload hash and stored-link check. Exit `0` means a
+nonempty local match; `1` means malformed input or a mismatch; `2` means no
+events, an unreadable file or invalid usage. Empty/blank files are unresolved,
+and duplicate JSON members and nonfinite numbers are rejected. The checker
+preserves this PoC's original Python JSON hash encoding, which is not RFC 8785.
+
+Neither the demo nor the standalone checker authenticates the source, policy
+fields, signatures, external anchors or completeness. A coherent rewrite of
+the data and all hashes can still match. See the root
+[local-check contract](../README.md#local-hash-chain-checks) for the exact scope.
 
 ## Understanding the Demo
 
