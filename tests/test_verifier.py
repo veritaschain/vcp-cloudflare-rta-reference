@@ -108,11 +108,22 @@ class LocalChainTests(unittest.TestCase):
                 self.assertFalse(self.check_api(events)[0])
 
     def test_invalid_json_utf8_and_deep_nesting_fail_without_traceback(self):
-        for data in (b'{', b'\xff\n', b'[' * 10000 + b'0' + b']' * 10000):
+        for data in (b'{', b'\xff\n'):
             with self.subTest(data=data[:8]):
                 result = self.run_cli(data)
                 self.assertEqual(result.returncode, 1)
                 self.assertEqual(result.stderr, 'Invalid JSONL event input.\n')
+        result = self.run_cli(b'[' * 10000 + b'0' + b']' * 10000)
+        self.assertEqual(result.returncode, 1)
+        # Python versions have different JSON nesting limits. If decoding
+        # succeeds, this array still fails the event-object check. Both paths
+        # must retain failure without a traceback or a successful local match.
+        if result.stderr:
+            self.assertEqual(result.stderr, 'Invalid JSONL event input.\n')
+        else:
+            self.assertIn('INVALID EVENT INPUT', result.stdout)
+            self.assertIn('Chain Integrity: FAILED', result.stdout)
+        self.assertNotIn('MATCH', result.stdout)
 
     def test_wrong_record_shapes_fail_without_traceback(self):
         malformed = [None, [], {}, {'header': []}]
