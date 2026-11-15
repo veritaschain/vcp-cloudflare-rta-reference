@@ -301,12 +301,17 @@ class VCPDemoSidecar:
 
 
 def verify_chain(events: List[Dict], show_details: bool = True) -> bool:
-    """Verify hash chain integrity."""
+    """Check local hash/link consistency; an empty input is not evidence."""
     if show_details:
         print()
         print("=" * 60)
         print("HASH CHAIN VERIFICATION")
         print("=" * 60)
+        print("Scope: header/payload hashes and stored links only; no authentication.")
+    if not events:
+        if show_details:
+            print("  Result: INDETERMINATE (no events supplied)")
+        return False
     
     all_valid = True
     prev_hash = "0" * 64
@@ -336,7 +341,7 @@ def verify_chain(events: List[Dict], show_details: bool = True) -> bool:
     if show_details:
         print()
         if all_valid:
-            print("  Result: ✓ CHAIN INTEGRITY VERIFIED")
+            print("  Result: ✓ LOCAL HASH CHAIN MATCH")
         else:
             print("  Result: ✗ CHAIN INTEGRITY FAILED")
         print()

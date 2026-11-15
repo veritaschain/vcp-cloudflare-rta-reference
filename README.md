@@ -76,8 +76,43 @@ vcp-cloudflare/
 ├── sidecar/
 │   └── vcp_sidecar.py         # Python Sidecar (v1.1)
 └── tools/
-    └── vcp_verifier.py        # Hash chain verifier
+    └── vcp_verifier.py        # Local hash/link checker (no authentication)
 ```
+
+## Local hash-chain checks
+
+`python tools/vcp_verifier.py demo/sample_events.jsonl` checks this PoC's stored
+header/payload hashes and adjacent stored hash links. A nonempty match is printed
+as `MATCH (local hash checks only)`. The original sample and its hash bytes are
+unchanged.
+
+| CLI exit | Meaning |
+| --- | --- |
+| `0` | A nonempty input matches these local hash/link checks. |
+| `1` | Malformed input, unsupported record shape, or a hash/link mismatch. |
+| `2` | No events, an unreadable input file, or invalid command usage. |
+
+Empty or whitespace-only files previously printed `VERIFIED` and exited `0`.
+They now report `INDETERMINATE` and exit `2`; both Python `verify_chain([])`
+entry points return `False`. The CLI rejects duplicate JSON object members,
+nonfinite numbers (including exponent overflow), invalid UTF-8 and malformed
+records without a traceback. Blank lines between valid JSONL records remain
+accepted. The Python checker validates only the record shape it needs, not a
+normative VCP schema.
+
+Hashing deliberately retains the existing `json.dumps` encoding of `header`
+and `payload`, with sorted Python keys, ASCII escaping and compact separators.
+It is **not RFC 8785 JCS**. `policy_identification` and other top-level metadata
+are outside those hashes. This tool does not verify event signatures, external
+anchors, origin, trusted time or history completeness. Rewriting payloads and
+recomputing all hashes can still yield a local match; that is not authentication
+or VCP conformance.
+
+Run the offline regressions with
+`python -I -B -m unittest discover -s tests -v`. They retain the original sample
+digest, exercise both empty-input entry points and CLI failure paths, and make
+the coherent-rewrite limitation explicit. The existing Worker authentication
+tests remain separate.
 
 ## Access Levels
 
