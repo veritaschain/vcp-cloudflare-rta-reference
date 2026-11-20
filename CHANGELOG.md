@@ -141,6 +141,6 @@ sidecar.clear_merkle_buffer()
 
 ## Links
 
-- [VCP v1.1 Specification](https://veritaschain.org/spec/v1.1)
+- [VCP v1.1 Specification](https://github.com/veritaschain/vcp-spec/tree/main/spec/v1.1)
 - [VeritasChain GitHub](https://github.com/veritaschain)
 - [Enterprise Contact](mailto:enterprise@veritaschain.org)
